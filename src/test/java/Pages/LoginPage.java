@@ -15,6 +15,7 @@ public class LoginPage extends BasePage{
     //Actions
     public void fillEmail(String email) {
         write(emailInputLocator, email);
+        //Welcome
     }
 
     public void fillPassword(String password) {
