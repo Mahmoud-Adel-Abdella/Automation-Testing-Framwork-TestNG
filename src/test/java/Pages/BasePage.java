@@ -1,43 +1,65 @@
 package Pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import com.github.javafaker.Faker;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import Utilities.ClickUtils;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class BasePage {
     //Globals
-    protected WebDriver driver;
-    protected WebDriverWait wait;
+    protected static WebDriver driver;
+    protected static WebDriverWait wait;
     protected Actions actions;
+    protected Faker faker;
 
     public BasePage(WebDriver driver) {
-        this.driver = driver;
+        BasePage.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         actions = new Actions(driver);
+        faker = new Faker();
 //        PageFactory.initElements(driver, this);
     }
 
     public void write(By locator, String text) {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         element.clear();
+        element.clear();
         element.sendKeys(text);
     }
 
     public String read(By locator) {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+
         return element.getText();
+    }
+
+    public String readByAttribute(By locator, String attribute) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+
+        return element.getAttribute(attribute);
     }
 
     public double readDigits(By locator) {
         return Double.parseDouble(read(locator).replaceAll("[^0-9]", ""));
+    }
+
+    public double readDigits(String text) {
+        return Double.parseDouble(text.replaceAll("[^0-9]", ""));
+    }
+
+    public WebElement getWebElement(By locator) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        actions.moveToElement(element).perform();
+
+        return element;
     }
 
     public void click(By locator) {
@@ -45,7 +67,25 @@ public class BasePage {
         actions.moveToElement(element).perform();
 
         wait.until(ExpectedConditions.elementToBeClickable(locator));
+        actions.scrollToElement(element).perform();
         element.click();
+    }
+
+    public void click(WebElement element) {
+        wait.until(ExpectedConditions.visibilityOf(element));
+        actions.moveToElement(element).perform();
+
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        actions.scrollToElement(element).perform();
+        element.click();
+    }
+
+    public void checkCookies(By locator) {
+        try {
+            WebDriverWait driverWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            driverWait.until(ExpectedConditions.visibilityOfElementLocated(locator)).click();
+        } catch (TimeoutException e) {
+        }
     }
 
     public void radioRandomSelect(By locator) {
@@ -75,7 +115,114 @@ public class BasePage {
         return element.getAttribute(attribute);
     }
 
-    public void navigateTo(By locator, String url) {
-        driver.get(url);
+    public void navigateToAndVerify(String url) {
+        driver.navigate().to(url);
+
+        String currentURL = driver.getCurrentUrl();
+
+        assert currentURL != null;
+        if (currentURL.equals(url)) {
+            System.out.println("Navigated Successfully to : " + url);
+        } else {
+            System.out.println("URL mismatch!...");
+        }
+    }
+
+    public boolean ratioAssert(By locator, String title) {
+        List<WebElement> elements = driver.findElements(locator);
+
+        int found = 0;
+        int size = elements.size();
+
+        for (WebElement element : elements) {
+            String productTitle = element.getText().toLowerCase();
+
+            if (productTitle.contains(title)) {
+                found++;
+            }
+        }
+
+        return size / 4 < found;
+    }
+
+    public boolean ratioAssert(By locator, String title, String attribute) {
+        List<WebElement> elements = driver.findElements(locator);
+
+        int found = 0;
+        int size = elements.size();
+
+        for (WebElement element : elements) {
+            String productTitle = element.getAttribute(attribute);
+
+            assert productTitle != null;
+            if (productTitle.contains(title)) {
+                found++;
+            }
+        }
+
+        return size / 4 < found;
+    }
+
+    public void randomClick(By locator) {
+        List<WebElement> elements = driver.findElements(locator);
+
+        Random random = new Random();
+        int randomIndex = random.nextInt(elements.size());
+
+        WebElement selector = elements.get(randomIndex);
+        ClickUtils.guaranteedClick(selector);
+    }
+
+    public boolean verifySort(By locator) {
+        List<WebElement> elements = driver.findElements(locator);
+
+        int price, priceNext;
+        boolean check = false;
+
+        for (int i = 0; i < elements.size() - 1; i++) {
+            price = (int) readDigits(elements.get(i).getText());
+            priceNext = (int) readDigits(elements.get(i + 1).getText());
+
+            if (price < priceNext) check = true;
+        }
+
+        return check;
+    }
+
+    public boolean verifyRange(By locator, String min, String max) {
+        List<WebElement> elements = driver.findElements(locator);
+
+        int checkCount = 0;
+
+        for (WebElement element : elements) {
+            double face = readDigits(element.getText());
+
+            if (face < Double.parseDouble(max) && face > Double.parseDouble(min)) {
+                checkCount++;
+            }
+        }
+        return checkCount > 0.9 * elements.size();
+    }
+
+    public boolean verifyRange(By locator, String attribute, String min, String max) {
+        List<WebElement> elements = driver.findElements(locator);
+
+        int checkCount = 0;
+
+        for (WebElement element : elements) {
+            double face = readDigits(Objects.requireNonNull(element.getAttribute(attribute)));
+
+            if (face <= Double.parseDouble(max) && face >= Double.parseDouble(min)) {
+                checkCount++;
+            }
+        }
+
+        return checkCount > 0.9 * elements.size();
+    }
+
+    public String getElementsSize(By locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        List<WebElement> elements = driver.findElements(locator);
+        return String.valueOf(elements.size());
     }
 }
