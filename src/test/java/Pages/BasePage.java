@@ -28,10 +28,10 @@ public class BasePage {
 //        PageFactory.initElements(driver, this);
     }
 
-    public void write(By locator, String text) {
+    public void write(By locator, String text) throws InterruptedException {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         element.clear();
-        element.clear();
+        Thread.sleep(200);
         element.sendKeys(text);
     }
 
@@ -83,7 +83,8 @@ public class BasePage {
     public void checkCookies(By locator) {
         try {
             WebDriverWait driverWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-            driverWait.until(ExpectedConditions.visibilityOfElementLocated(locator)).click();
+            WebElement element = driverWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+            click(element);
         } catch (TimeoutException e) {
         }
     }
@@ -108,6 +109,13 @@ public class BasePage {
         int randomIndex = random.nextInt(options.size());
 
         selects.selectByIndex(randomIndex);
+    }
+
+    public void dropdownIndexSelect(By locator, int index) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        Select selects = new Select(element);
+
+        selects.selectByIndex(index);
     }
 
     public String getAttribute(By locator, String attribute) {
@@ -224,5 +232,16 @@ public class BasePage {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         List<WebElement> elements = driver.findElements(locator);
         return String.valueOf(elements.size());
+    }
+
+    public String[] getElementsText(By locator) {
+        List<WebElement> elements = driver.findElements(locator);
+        String[] values = new String[elements.size()];
+
+        for (int i = 0; i < elements.size(); i++) {
+            values[i] = elements.get(i).getText();
+        }
+
+        return values;
     }
 }
