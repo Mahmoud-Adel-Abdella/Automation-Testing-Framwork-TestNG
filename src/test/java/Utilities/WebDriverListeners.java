@@ -6,6 +6,8 @@ import org.openqa.selenium.support.events.WebDriverListener;
 
 import java.util.Arrays;
 
+import static Utilities.ExtentManger.extentTest;
+
 
 public class WebDriverListeners implements WebDriverListener {
 
@@ -70,6 +72,7 @@ public class WebDriverListeners implements WebDriverListener {
     @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
         System.out.println("Send keys Done: "+ Arrays.toString(keysToSend));
+        extentTest.info("Test Data: " + Arrays.toString(keysToSend));
     }
 
 
@@ -82,5 +85,10 @@ public class WebDriverListeners implements WebDriverListener {
     @Override
     public void afterClick(WebElement element) {
         System.out.println("Click Done: " + element.toString());
+    }
+
+    @Override
+    public void beforeIsEnabled(WebElement element) {
+        System.out.println();
     }
 }

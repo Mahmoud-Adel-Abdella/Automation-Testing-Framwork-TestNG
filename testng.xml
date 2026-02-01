@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Test Suite">
+    <listeners>
+        <listener class-name="Utilities.TestListeners" />
+    </listeners>
+    <test verbose="2" preserve-order="true"
+          name="D:/IdeaProjects/Automation-Testing-Framwork-TestNG/src/test/java/Tests/LoginTest.java">
+        <classes>
+            <class name="Tests.LoginTest">
+                <methods>
+                    <include name="loginTest"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

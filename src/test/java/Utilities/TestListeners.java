@@ -2,6 +2,7 @@ package Utilities;
 
 import Tests.BaseTest;
 import com.aventstack.extentreports.Status;
+import org.openqa.selenium.WebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 import static Utilities.ExtentManger.screenShot;
 
-public class TestListeners extends BaseTest implements ITestListener {
+public class TestListeners implements ITestListener {
 
     @Override
     public void onStart(ITestContext context) {
@@ -39,19 +40,30 @@ public class TestListeners extends BaseTest implements ITestListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        ExtentManger.getTest().log(Status.PASS, "🟨🟨 Test Skipped 🟨🟨: " + result.getThrowable());
+        ExtentManger.getTest().log(Status.SKIP, "🟨🟨 Test Skipped 🟨🟨: " + result.getThrowable());
     }
 
     @Override
     public void onTestFailure(ITestResult result) {
-        ExtentManger.getTest().log(Status.FAIL, "❎❎ Test Failed ❎❎: " + result.getThrowable());
+
+        ExtentManger.getTest()
+                .log(Status.FAIL, "❎❎ Test Failed ❎❎: " + result.getThrowable());
 
         try {
-            String screenShotPath = screenShot(driver, result.getName());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            Object testClass = result.getInstance();
+
+            WebDriver driver = ((BaseTest) testClass).driver;
+
+            String screenShotPath =
+                    ExtentManger.screenShot(driver, result.getName());
+
+            ExtentManger.getTest().addScreenCaptureFromPath(screenShotPath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
 }
 
 

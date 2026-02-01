@@ -13,7 +13,7 @@ import java.time.Duration;
 
 public class BaseTest {
 
-    protected WebDriver driver;
+    public WebDriver driver;
     protected SoftAssert softAssert;
     protected Faker faker;
 
@@ -28,7 +28,7 @@ public class BaseTest {
 
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.get("https://example.com");
+        driver.get("https://www.automationexercise.com/login");
     }
 
     @BeforeMethod
@@ -37,15 +37,8 @@ public class BaseTest {
         softAssert = new SoftAssert();
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void afterMethod() {
-        softAssert.assertAll();
-        driver.manage().deleteAllCookies();
-        driver.navigate().refresh();
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void finish() {
         if (driver != null) {
             driver.quit();
         }
