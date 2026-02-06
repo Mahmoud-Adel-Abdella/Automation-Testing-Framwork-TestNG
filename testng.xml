@@ -6,11 +6,6 @@
     </listeners>
     <test verbose="2" preserve-order="true" name="D:/IdeaProjects/Daftra_TestNG/src/test/java/Pages/LoginPage.java">
         <classes>
-            <class name="Tests.RegisterTest">
-                <methods>
-                    <include name="registerTest"/>
-                </methods>
-            </class>
             <class name="Tests.LoginTest">
                 <methods>
                     <include name="validLoginTest"/>

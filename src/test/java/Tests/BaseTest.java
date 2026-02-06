@@ -3,6 +3,7 @@ package Tests;
 import com.github.javafaker.Faker;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.events.EventFiringDecorator;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
@@ -19,8 +20,16 @@ public class BaseTest {
 
     @BeforeMethod(alwaysRun = true)
     public void setUpTest() {
+        ChromeOptions options = new ChromeOptions();
+
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
+
         WebDriverManager.chromedriver().setup();
-        WebDriver originalDriver = new ChromeDriver();
+        WebDriver originalDriver = new ChromeDriver(options);
         WebDriverListeners myListeners = new WebDriverListeners();
         driver = new EventFiringDecorator(myListeners).decorate(originalDriver);
 

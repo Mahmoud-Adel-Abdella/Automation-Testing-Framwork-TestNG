@@ -17,13 +17,16 @@ public class LoginTest extends BaseTest{
     private static final Logger log = LoggerFactory.getLogger(LoginTest.class);
     LoginPage loginPage;
 
+    String email = "mahaammoud224@gmail.com";
+    String password = "u@5hQ33YkG@s2Tw";
+
     @Test
     public void validLoginTest(){
         loginPage = new LoginPage(driver);
 
         loginPage.navigateToLoginPage();
 
-        loginPage.fillCredentials(DataFactory.getEmail(), DataFactory.getPassword());
+        loginPage.fillCredentials(email , password);
 
         Assert.assertTrue(loginPage.checkDashboardRedirection());
     }
